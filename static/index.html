@@ -328,7 +328,7 @@
         </div>
         <div class="header">
             <h1>ChatGPT Team</h1>
-            <p>输入邮箱，获取 Team 席位邀请</p>
+            <p>输入邮箱和兑换码，兑换 Team 席位邀请</p>
         </div>
         <form id="inviteForm">
             <div class="form-group">
@@ -338,13 +338,20 @@
                         autocomplete="email" autofocus>
                 </div>
             </div>
+            <div class="form-group">
+                <label for="codeInput">兑换码</label>
+                <div class="input-wrap">
+                    <input type="text" id="codeInput" name="code" placeholder="TEAM-XXXXXXXXXX" required
+                        autocomplete="one-time-code">
+                </div>
+            </div>
             <button type="submit" class="btn-submit" id="submitBtn">
-                <span class="btn-text">发送邀请</span>
+                <span class="btn-text">立即兑换</span>
                 <div class="spinner"></div>
             </button>
         </form>
         <div id="message" class="message"></div>
-        <p class="footer-note">999人火车，请注意查收邮箱，报错就是死号了，或者席位满了</p>
+        <p class="footer-note">兑换成功后将自动发送邀请，请注意查收邮箱。</p>
         <a class="gh-link" href="https://github.com/Futureppo/team-auto-invite" target="_blank">
             <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
                 <path
@@ -355,27 +362,31 @@
     </div>
     <script>
         const $ = id => document.getElementById(id);
-        const emailInput = $('emailInput'), submitBtn = $('submitBtn'), messageEl = $('message');
+        const emailInput = $('emailInput'), codeInput = $('codeInput'), submitBtn = $('submitBtn'), messageEl = $('message');
 
         $('inviteForm').addEventListener('submit', async e => {
             e.preventDefault();
             const email = emailInput.value.trim();
-            if (!email) return;
+            const code = codeInput.value.trim();
+            if (!email || !code) return;
 
             submitBtn.classList.add('loading');
             submitBtn.disabled = true;
             messageEl.className = 'message';
 
             try {
-                const resp = await fetch('/api/invite', {
+                const resp = await fetch('/api/redeem', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email }),
+                    body: JSON.stringify({ email, code }),
                 });
                 const data = await resp.json();
                 messageEl.textContent = data.message;
                 messageEl.className = 'message ' + (data.success ? 'success' : 'error');
-                if (data.success) emailInput.value = '';
+                if (data.success) {
+                    emailInput.value = '';
+                    codeInput.value = '';
+                }
             } catch {
                 messageEl.textContent = '网络请求失败，请稍后重试';
                 messageEl.className = 'message error';
