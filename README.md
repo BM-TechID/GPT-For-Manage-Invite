@@ -30,4 +30,4 @@ docker run -d -p 8080:8080 --env-file .env team-auto-invite
 
 ## License
 
-MIT
+AGPLv3
