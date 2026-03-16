@@ -1,6 +1,7 @@
 """ChatGPT Team 自动邀请"""
 
 import argparse
+import functools
 import logging
 import os
 import secrets
@@ -12,7 +13,7 @@ from datetime import datetime, timedelta, timezone
 import jwt
 from curl_cffi import requests as cffi_requests
 from dotenv import load_dotenv
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory, session
 
 load_dotenv()
 logging.basicConfig(
@@ -23,6 +24,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__, static_folder="static")
+app.secret_key = os.getenv("SECRET_KEY") or secrets.token_hex(32)
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 JWT_TOKEN = os.getenv("JWT_TOKEN", "")
 OAI_CLIENT_VERSION = os.getenv(
@@ -32,6 +36,7 @@ PORT = int(os.getenv("PORT", "8080"))
 BASE_URL = "https://chatgpt.com/backend-api"
 DATABASE_PATH = os.getenv("DATABASE_PATH", "data/team_auto_invite.db")
 PENDING_TTL_SECONDS = int(os.getenv("REDEEM_PENDING_TTL_SECONDS", "300"))
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
 
 _token_cache = None
 
@@ -434,6 +439,179 @@ def health():
             "message": token_status.get("error", "服务正常"),
         }
     )
+
+
+
+def admin_required(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        if not session.get("is_admin"):
+            return jsonify({"success": False, "message": "未授权"}), 401
+        return f(*args, **kwargs)
+    return wrapper
+
+
+@app.route("/admin")
+@app.route("/admin/")
+def admin_page():
+    return send_from_directory("static", "admin.html")
+
+
+@app.route("/admin/api/login", methods=["POST"])
+def admin_login():
+    if not ADMIN_PASSWORD:
+        return jsonify({"success": False, "message": "未配置管理员密码"}), 503
+    data = request.get_json(silent=True)
+    password = data.get("password", "") if data else ""
+    if not isinstance(password, str) or not password:
+        return jsonify({"success": False, "message": "请输入密码"}), 400
+    if not secrets.compare_digest(password, ADMIN_PASSWORD):
+        logger.warning("后台登录失败，来源: %s", request.remote_addr)
+        return jsonify({"success": False, "message": "密码错误"}), 403
+    session.clear()
+    session["is_admin"] = True
+    return jsonify({"success": True})
+
+
+@app.route("/admin/api/logout", methods=["POST"])
+def admin_logout():
+    session.clear()
+    return jsonify({"success": True})
+
+
+@app.route("/admin/api/stats")
+@admin_required
+def admin_stats():
+    with db_connection() as conn:
+        cs = conn.execute(
+            "SELECT COUNT(*) as total,"
+            " COALESCE(SUM(CASE WHEN status='unused' THEN 1 END),0) as unused,"
+            " COALESCE(SUM(CASE WHEN status='used' THEN 1 END),0) as used,"
+            " COALESCE(SUM(CASE WHEN status='disabled' THEN 1 END),0) as disabled,"
+            " COALESCE(SUM(CASE WHEN status='pending' THEN 1 END),0) as pending"
+            " FROM redeem_codes"
+        ).fetchone()
+        rs = conn.execute(
+            "SELECT COUNT(*) as total,"
+            " COALESCE(SUM(CASE WHEN invite_status='success' THEN 1 END),0) as success,"
+            " COALESCE(SUM(CASE WHEN invite_status NOT IN ('success','token_error') THEN 1 END),0) as failed"
+            " FROM invite_records"
+        ).fetchone()
+    return jsonify({"codes": dict(cs), "records": dict(rs)})
+
+
+@app.route("/admin/api/codes")
+@admin_required
+def admin_list_codes():
+    page = max(request.args.get("page", 1, type=int), 1)
+    per_page = min(max(request.args.get("per_page", 20, type=int), 1), 100)
+    status = request.args.get("status", "").strip()
+    search = request.args.get("search", "").strip()
+    where_parts, params = [], []
+    if status:
+        where_parts.append("status = ?")
+        params.append(status)
+    if search:
+        where_parts.append("(code LIKE ? OR used_by_email LIKE ? OR reserved_by_email LIKE ?)")
+        like = f"%{search}%"
+        params.extend([like, like, like])
+    where = (" WHERE " + " AND ".join(where_parts)) if where_parts else ""
+    with db_connection() as conn:
+        total = conn.execute(f"SELECT COUNT(*) FROM redeem_codes{where}", params).fetchone()[0]
+        rows = conn.execute(
+            f"SELECT * FROM redeem_codes{where} ORDER BY id DESC LIMIT ? OFFSET ?",
+            [*params, per_page, (page - 1) * per_page],
+        ).fetchall()
+    return jsonify({"total": total, "page": page, "per_page": per_page, "items": [dict(r) for r in rows]})
+
+
+@app.route("/admin/api/codes", methods=["POST"])
+@admin_required
+def admin_import_codes():
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"success": False, "message": "请求体无效"}), 400
+    codes = data.get("codes", [])
+    if not isinstance(codes, list) or not codes:
+        return jsonify({"success": False, "message": "请提供兑换码列表"}), 400
+    if len(codes) > 1000:
+        return jsonify({"success": False, "message": "单次最多导入 1000 个"}), 400
+    result = create_redeem_codes(codes)
+    return jsonify({"success": True, "inserted": len(result["inserted"]), "skipped": len(result["skipped"])})
+
+
+@app.route("/admin/api/codes/generate", methods=["POST"])
+@admin_required
+def admin_generate_codes():
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"success": False, "message": "请求体无效"}), 400
+    try:
+        count = min(max(int(data.get("count", 10)), 1), 500)
+        length = min(max(int(data.get("length", 10)), 6), 32)
+    except (TypeError, ValueError):
+        return jsonify({"success": False, "message": "参数格式错误"}), 400
+    prefix = str(data.get("prefix", "TEAM"))[:16]
+    codes = generate_redeem_codes(count, prefix, length)
+    return jsonify({"success": True, "count": len(codes), "codes": codes})
+
+
+@app.route("/admin/api/codes/<int:code_id>/disable", methods=["PATCH"])
+@admin_required
+def admin_disable_code(code_id):
+    with db_connection() as conn:
+        row = conn.execute("SELECT status FROM redeem_codes WHERE id = ?", (code_id,)).fetchone()
+        if not row:
+            return jsonify({"success": False, "message": "兑换码不存在"}), 404
+        if row["status"] == "disabled":
+            return jsonify({"success": False, "message": "兑换码已禁用"}), 400
+        if row["status"] == "used":
+            return jsonify({"success": False, "message": "已使用的兑换码无法禁用"}), 400
+        conn.execute(
+            "UPDATE redeem_codes SET status='disabled', disabled_at=? WHERE id=?",
+            (utc_now_iso(), code_id),
+        )
+    return jsonify({"success": True})
+
+
+@app.route("/admin/api/codes/<int:code_id>/enable", methods=["PATCH"])
+@admin_required
+def admin_enable_code(code_id):
+    with db_connection() as conn:
+        row = conn.execute("SELECT status FROM redeem_codes WHERE id = ?", (code_id,)).fetchone()
+        if not row:
+            return jsonify({"success": False, "message": "兑换码不存在"}), 404
+        if row["status"] != "disabled":
+            return jsonify({"success": False, "message": "仅已禁用的兑换码可启用"}), 400
+        conn.execute(
+            "UPDATE redeem_codes SET status='unused', disabled_at=NULL WHERE id=?",
+            (code_id,),
+        )
+    return jsonify({"success": True})
+
+
+@app.route("/admin/api/records")
+@admin_required
+def admin_list_records():
+    page = max(request.args.get("page", 1, type=int), 1)
+    per_page = min(max(request.args.get("per_page", 20, type=int), 1), 100)
+    status = request.args.get("status", "").strip()
+    email = request.args.get("email", "").strip()
+    where_parts, params = [], []
+    if status:
+        where_parts.append("invite_status = ?")
+        params.append(status)
+    if email:
+        where_parts.append("email LIKE ?")
+        params.append(f"%{email}%")
+    where = (" WHERE " + " AND ".join(where_parts)) if where_parts else ""
+    with db_connection() as conn:
+        total = conn.execute(f"SELECT COUNT(*) FROM invite_records{where}", params).fetchone()[0]
+        rows = conn.execute(
+            f"SELECT * FROM invite_records{where} ORDER BY id DESC LIMIT ? OFFSET ?",
+            [*params, per_page, (page - 1) * per_page],
+        ).fetchall()
+    return jsonify({"total": total, "page": page, "per_page": per_page, "items": [dict(r) for r in rows]})
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
