@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>操飞奥特曼</title>
-    <meta name="description" content="输入邮箱，获取 ChatGPT Team 席位邀请">
+    <title>Universal Auto Invite</title>
+    <meta name="description" content="Masukkan email Anda, tebus undangan otomatis">
     <style>
         *,
         *::before,
@@ -21,9 +21,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #f5f5f0;
-            color: #1a1a1a;
+            background: #050b14; /* Cyberpunk dark bg */
+            color: #e2f1ff;
             -webkit-font-smoothing: antialiased;
+            overflow: hidden;
         }
 
         body::before,
@@ -40,7 +41,7 @@
             right: -20%;
             width: 600px;
             height: 600px;
-            background: radial-gradient(circle, rgba(180, 160, 130, .12) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(0, 229, 255, .15) 0%, transparent 70%);
         }
 
         body::after {
@@ -48,7 +49,7 @@
             left: -15%;
             width: 500px;
             height: 500px;
-            background: radial-gradient(circle, rgba(140, 120, 100, .08) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(0, 85, 255, .15) 0%, transparent 70%);
         }
 
         .card {
@@ -58,12 +59,12 @@
             max-width: 440px;
             padding: 48px 40px;
             margin: 20px;
-            background: rgba(255, 255, 255, .85);
+            background: rgba(10, 20, 35, .85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, .6);
-            box-shadow: 0 4px 24px rgba(0, 0, 0, .04), 0 12px 48px rgba(0, 0, 0, .06);
+            border: 1px solid rgba(0, 229, 255, .3);
+            box-shadow: 0 4px 24px rgba(0, 229, 255, .1), 0 12px 48px rgba(0, 85, 255, .2);
             animation: cardIn .6s cubic-bezier(.16, 1, .3, 1) both;
         }
 
@@ -88,12 +89,12 @@
         .logo {
             width: 56px;
             height: 56px;
-            background: #1a1a1a;
+            background: linear-gradient(135deg, #0055ff, #00e5ff);
             border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, .15);
+            box-shadow: 0 2px 15px rgba(0, 229, 255, .4);
             transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
         }
 
@@ -116,11 +117,12 @@
             font-weight: 700;
             margin-bottom: 8px;
             letter-spacing: -.02em;
+            text-shadow: 0 0 10px #00e5ff;
         }
 
         .header p {
             font-size: 14px;
-            color: #8a8072;
+            color: #8ab4f8;
             line-height: 1.5;
         }
 
@@ -132,7 +134,7 @@
             display: block;
             font-size: 13px;
             font-weight: 600;
-            color: #3d3529;
+            color: #8ab4f8;
             margin-bottom: 8px;
         }
 
@@ -141,26 +143,26 @@
             padding: 14px 16px;
             font-size: 15px;
             font-family: inherit;
-            color: #1a1a1a;
-            background: rgba(255, 255, 255, .8);
-            border: 1.5px solid #e0dbd3;
+            color: #e2f1ff;
+            background: rgba(0, 0, 0, .4);
+            border: 1.5px solid #1e3a5f;
             border-radius: 12px;
             outline: none;
             transition: all .25s ease;
         }
 
         .input-wrap input::placeholder {
-            color: #bbb5aa;
+            color: #4a6b8c;
         }
 
         .input-wrap input:focus {
-            border-color: #8a7b6b;
-            box-shadow: 0 0 0 3px rgba(138, 123, 107, .12);
-            background: #fff;
+            border-color: #00e5ff;
+            box-shadow: 0 0 0 3px rgba(0, 229, 255, .2);
+            background: rgba(0, 0, 0, .6);
         }
 
         .input-wrap input:hover:not(:focus) {
-            border-color: #c5bdb2;
+            border-color: #0055ff;
         }
 
         .btn-submit {
@@ -170,7 +172,7 @@
             font-weight: 600;
             font-family: inherit;
             color: #fff;
-            background: linear-gradient(135deg, #3d3529, #2a2118);
+            background: linear-gradient(135deg, #0055ff, #00e5ff);
             border: none;
             border-radius: 12px;
             cursor: pointer;
@@ -187,13 +189,13 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .1), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .2), transparent);
             transition: left .5s ease;
         }
 
         .btn-submit:hover:not(:disabled) {
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(61, 53, 41, .3);
+            box-shadow: 0 6px 20px rgba(0, 229, 255, .4);
         }
 
         .btn-submit:hover:not(:disabled)::before {
@@ -202,7 +204,7 @@
 
         .btn-submit:active:not(:disabled) {
             transform: translateY(0);
-            box-shadow: 0 2px 8px rgba(61, 53, 41, .2);
+            box-shadow: 0 2px 8px rgba(0, 229, 255, .2);
         }
 
         .btn-submit:disabled {
@@ -244,6 +246,7 @@
             line-height: 1.5;
             display: none;
             animation: msgIn .35s cubic-bezier(.16, 1, .3, 1) both;
+            backdrop-filter: blur(10px);
         }
 
         @keyframes msgIn {
@@ -260,24 +263,32 @@
 
         .message.success {
             display: block;
-            background: rgba(34, 139, 34, .08);
-            color: #1a7a1a;
-            border: 1px solid rgba(34, 139, 34, .15);
+            background: rgba(0, 255, 136, .1);
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, .3);
         }
 
         .message.error {
             display: block;
-            background: rgba(180, 60, 40, .08);
-            color: #a03020;
-            border: 1px solid rgba(180, 60, 40, .15);
+            background: rgba(255, 77, 77, .1);
+            color: #ff4d4d;
+            border: 1px solid rgba(255, 77, 77, .3);
         }
 
         .footer-note {
             text-align: center;
             margin-top: 28px;
             font-size: 12px;
-            color: #b0a898;
+            color: #4a6b8c;
             line-height: 1.6;
+        }
+
+        .links-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 16px;
         }
 
         .gh-link {
@@ -285,21 +296,22 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            margin-top: 16px;
-            padding: 10px 20px;
+            padding: 10px 16px;
             border-radius: 10px;
-            background: #1a1a1a;
-            color: #fff;
+            background: #021024;
+            border: 1px solid #1e3a5f;
+            color: #e2f1ff;
             text-decoration: none;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             transition: all .25s ease;
         }
 
         .gh-link:hover {
-            background: #333;
+            background: #1e3a5f;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
+            box-shadow: 0 4px 12px rgba(0, 229, 255, .2);
+            color: #00e5ff;
         }
 
         @media (max-width: 480px) {
@@ -310,6 +322,9 @@
 
             .header h1 {
                 font-size: 20px;
+            }
+            .links-row {
+                flex-direction: column;
             }
         }
     </style>
@@ -327,38 +342,47 @@
             </div>
         </div>
         <div class="header">
-            <h1>ChatGPT Team</h1>
-            <p>输入邮箱和兑换码，兑换 Team 席位邀请</p>
+            <h1>Universal Team Invite</h1>
+            <p>Masukkan email dan kode untuk menebus undangan</p>
         </div>
         <form id="inviteForm">
             <div class="form-group">
-                <label for="emailInput">邮箱地址</label>
+                <label for="emailInput">Alamat Email</label>
                 <div class="input-wrap">
-                    <input type="email" id="emailInput" name="email" placeholder="your@email.com" required
+                    <input type="email" id="emailInput" name="email" placeholder="nama@email.com" required
                         autocomplete="email" autofocus>
                 </div>
             </div>
             <div class="form-group">
-                <label for="codeInput">兑换码</label>
+                <label for="codeInput">Kode Undangan</label>
                 <div class="input-wrap">
                     <input type="text" id="codeInput" name="code" placeholder="TEAM-XXXXXXXXXX" required
                         autocomplete="one-time-code">
                 </div>
             </div>
             <button type="submit" class="btn-submit" id="submitBtn">
-                <span class="btn-text">立即兑换</span>
+                <span class="btn-text">Tukarkan Sekarang</span>
                 <div class="spinner"></div>
             </button>
         </form>
         <div id="message" class="message"></div>
-        <p class="footer-note">兑换成功后将自动发送邀请，请注意查收邮箱。</p>
-        <a class="gh-link" href="https://github.com/Futureppo/team-auto-invite" target="_blank">
-            <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
-                <path
-                    d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-            </svg>
-            GitHub
-        </a>
+        <p class="footer-note">Undangan akan dikirim otomatis setelah berhasil. Silakan periksa kotak masuk email Anda.</p>
+        
+        <div class="links-row">
+            <a class="gh-link" href="https://github.com/Futureppo/team-auto-invite" target="_blank">
+                <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
+                    <path
+                        d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+                </svg>
+                GitHub
+            </a>
+            <a class="gh-link" href="https://t.me/premium2in" target="_blank">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.223-.548.223l.188-2.85 5.18-4.686c.223-.198-.054-.31-.346-.116l-6.405 4.028-2.76-.86c-.6-.188-.614-.6.126-.89l10.814-4.17c.5-.188.95.105.814.909z"/>
+                </svg>
+                Modified by Premium2in
+            </a>
+        </div>
     </div>
     <script>
         const $ = id => document.getElementById(id);
@@ -388,7 +412,7 @@
                     codeInput.value = '';
                 }
             } catch {
-                messageEl.textContent = '网络请求失败，请稍后重试';
+                messageEl.textContent = 'Permintaan gagal, silakan coba lagi nanti';
                 messageEl.className = 'message error';
             } finally {
                 submitBtn.classList.remove('loading');

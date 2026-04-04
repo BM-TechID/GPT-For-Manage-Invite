@@ -1,227 +1,241 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>后台管理 - ChatGPT Team</title>
+    <title>Admin Panel - Universal Dashboard</title>
     <style>
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        :root{--bg:#f5f5f0;--card:rgba(255,255,255,.85);--text:#1a1a1a;--text-2:#8a8072;--text-3:#b0a898;--border:#e0dbd3;--accent:#3d3529;--accent-2:#2a2118;--ring:rgba(138,123,107,.12);--sidebar-w:250px}
+        :root{
+            /* Cyberpunk Blue Theme */
+            --bg: #050b14;
+            --card: rgba(10, 20, 35, .85);
+            --text: #e2f1ff;
+            --text-2: #8ab4f8;
+            --text-3: #4a6b8c;
+            --border: #1e3a5f;
+            --accent: #00e5ff;
+            --accent-2: #0055ff;
+            --ring: rgba(0, 229, 255, .2);
+            --sidebar-w: 250px;
+        }
         body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh}
-        .login-view{min-height:100vh;display:flex;align-items:center;justify-content:center}
-        .login-card{width:100%;max-width:400px;padding:48px 40px;margin:20px;background:var(--card);backdrop-filter:blur(20px);border-radius:24px;border:1px solid rgba(255,255,255,.6);box-shadow:0 4px 24px rgba(0,0,0,.04),0 12px 48px rgba(0,0,0,.06);animation:fadeUp .5s ease both}
+        .login-view{min-height:100vh;display:flex;align-items:center;justify-content:center;background: radial-gradient(circle at center, #0a192f 0%, var(--bg) 100%);}
+        .login-card{width:100%;max-width:400px;padding:48px 40px;margin:20px;background:var(--card);backdrop-filter:blur(20px);border-radius:24px;border:1px solid rgba(0, 229, 255, .3);box-shadow:0 4px 24px rgba(0, 229, 255, .1),0 12px 48px rgba(0, 85, 255, .2);animation:fadeUp .5s ease both}
         @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-        .login-card h1{text-align:center;font-size:22px;font-weight:700;margin-bottom:8px}
+        .login-card h1{text-align:center;font-size:22px;font-weight:700;margin-bottom:8px;text-shadow: 0 0 10px var(--accent);}
         .login-card p{text-align:center;font-size:14px;color:var(--text-2);margin-bottom:32px}
         .login-card .logo-wrap{display:flex;justify-content:center;margin-bottom:20px}
-        .login-card .logo{width:52px;height:52px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+        .login-card .logo{width:52px;height:52px;background: linear-gradient(135deg, var(--accent-2), var(--accent));border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 15px rgba(0, 229, 255, .4)}
         .login-card .logo svg{width:24px;height:24px}
         .form-group{margin-bottom:20px}
-        .form-group label{display:block;font-size:13px;font-weight:600;color:#3d3529;margin-bottom:8px}
-        .input{width:100%;padding:12px 14px;font-size:14px;font-family:inherit;color:var(--text);background:rgba(255,255,255,.8);border:1.5px solid var(--border);border-radius:10px;outline:none;transition:all .2s ease}
+        .form-group label{display:block;font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:8px}
+        .input{width:100%;padding:12px 14px;font-size:14px;font-family:inherit;color:var(--text);background:rgba(0,0,0,.4);border:1.5px solid var(--border);border-radius:10px;outline:none;transition:all .2s ease}
         .input::placeholder{color:var(--text-3)}
-        .input:focus{border-color:#8a7b6b;box-shadow:0 0 0 3px var(--ring);background:#fff}
+        .input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--ring);background:rgba(0,0,0,.6)}
         textarea.input{resize:vertical;min-height:100px;font-family:'Consolas',monospace;font-size:13px}
-        select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a8072' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+        select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2300e5ff' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
         .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;font-size:13px;font-weight:600;font-family:inherit;border:none;border-radius:10px;cursor:pointer;transition:all .2s ease;white-space:nowrap}
-        .btn-primary{color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-2))}
-        .btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 16px rgba(61,53,41,.3)}
+        .btn-primary{color:#fff;background:linear-gradient(135deg,var(--accent-2),var(--accent))}
+        .btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 16px rgba(0, 229, 255, .4)}
         .btn-primary:disabled{opacity:.6;cursor:not-allowed}
-        .btn-secondary{color:var(--accent);background:rgba(61,53,41,.08)}
-        .btn-secondary:hover{background:rgba(61,53,41,.14)}
+        .btn-secondary{color:var(--accent);background:rgba(0, 229, 255, .1)}
+        .btn-secondary:hover{background:rgba(0, 229, 255, .2)}
         .btn-sm{padding:6px 12px;font-size:12px;border-radius:8px}
-        .btn-danger{color:#dc2626;background:rgba(220,38,38,.08)}
-        .btn-danger:hover{background:rgba(220,38,38,.14)}
-        .btn-success{color:#16a34a;background:rgba(22,163,74,.08)}
-        .btn-success:hover{background:rgba(22,163,74,.14)}
+        .btn-danger{color:#ff4d4d;background:rgba(255, 77, 77, .1)}
+        .btn-danger:hover{background:rgba(255, 77, 77, .2)}
+        .btn-success{color:#00ff88;background:rgba(0, 255, 136, .1)}
+        .btn-success:hover{background:rgba(0, 255, 136, .2)}
         .btn-full{width:100%;justify-content:center;padding:13px;font-size:15px}
         .btn .spinner{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
         .btn.loading .btn-text{display:none}.btn.loading .spinner{display:block}
         @keyframes spin{to{transform:rotate(360deg)}}
         .admin-panel{display:flex;min-height:100vh}
-        .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);background:linear-gradient(180deg,var(--accent-2),#1a1610);color:#d4c8b8;display:flex;flex-direction:column;z-index:100;transition:transform .3s ease}
-        .sidebar-header{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.08)}
-        .sidebar-header h2{font-size:16px;font-weight:700;color:#fff;display:flex;align-items:center;gap:10px}
+        .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);background:linear-gradient(180deg, #021024, #01060e);border-right:1px solid var(--border);color:var(--text-2);display:flex;flex-direction:column;z-index:100;transition:transform .3s ease}
+        .sidebar-header{padding:24px 20px;border-bottom:1px solid var(--border)}
+        .sidebar-header h2{font-size:16px;font-weight:700;color:#fff;display:flex;align-items:center;gap:10px;text-shadow: 0 0 8px var(--accent);}
         .sidebar-header h2 svg{width:22px;height:22px;flex-shrink:0}
         .sidebar-nav{flex:1;padding:12px 10px}
-        .nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;font-size:14px;font-weight:500;color:#c4b8a8;cursor:pointer;transition:all .2s ease;margin-bottom:2px}
-        .nav-item:hover{background:rgba(255,255,255,.06);color:#e8ddd0}
-        .nav-item.active{background:rgba(255,255,255,.12);color:#fff;font-weight:600}
+        .nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;font-size:14px;font-weight:500;color:var(--text-2);cursor:pointer;transition:all .2s ease;margin-bottom:2px}
+        .nav-item:hover{background:rgba(0, 229, 255, .1);color:var(--accent)}
+        .nav-item.active{background:rgba(0, 229, 255, .15);color:#fff;font-weight:600;box-shadow: inset 3px 0 0 var(--accent);}
         .nav-item svg{width:18px;height:18px;flex-shrink:0}
-        .sidebar-footer{padding:16px 10px;border-top:1px solid rgba(255,255,255,.08)}
-        .sidebar-footer .nav-item{color:#9a8e7e;font-size:13px}
+        .sidebar-footer{padding:16px 10px;border-top:1px solid var(--border)}
+        .sidebar-footer .nav-item{color:var(--text-3);font-size:13px}
         .main-wrap{flex:1;margin-left:var(--sidebar-w);display:flex;flex-direction:column;min-height:100vh}
-        .topbar{position:sticky;top:0;padding:16px 28px;background:rgba(245,245,240,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;z-index:50}
-        .topbar-title{font-size:18px;font-weight:700}
+        .topbar{position:sticky;top:0;padding:16px 28px;background:rgba(5, 11, 20, .85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;z-index:50}
+        .topbar-title{font-size:18px;font-weight:700;color:var(--accent);text-shadow: 0 0 5px rgba(0,229,255,0.3);}
         .topbar-right{display:flex;align-items:center;gap:12px}
         .content{flex:1;padding:28px}
         .view{display:none;animation:fadeUp .3s ease both}.view.active{display:block}
         .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px;margin-bottom:28px}
-        .stat-card{background:var(--card);backdrop-filter:blur(12px);border-radius:16px;padding:22px 20px;border:1px solid rgba(255,255,255,.6);box-shadow:0 2px 12px rgba(0,0,0,.03);border-left:3px solid var(--card-color,var(--accent));transition:transform .2s ease,box-shadow .2s ease}
-        .stat-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.06)}
-        .stat-card .num{font-size:28px;font-weight:800;color:var(--card-color,var(--accent))}
+        .stat-card{background:var(--card);backdrop-filter:blur(12px);border-radius:16px;padding:22px 20px;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.2);border-left:3px solid var(--card-color,var(--accent));transition:transform .2s ease,box-shadow .2s ease}
+        .stat-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0, 229, 255, .1)}
+        .stat-card .num{font-size:28px;font-weight:800;color:var(--card-color,var(--accent));text-shadow: 0 0 8px var(--card-color,var(--accent));}
         .stat-card .label{font-size:13px;color:var(--text-2);margin-top:4px}
         .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
         .toolbar .input{width:auto;min-width:200px}
         .toolbar-space{flex:1}
-        .table-wrap{background:var(--card);backdrop-filter:blur(12px);border-radius:16px;border:1px solid rgba(255,255,255,.6);box-shadow:0 2px 12px rgba(0,0,0,.03);overflow:hidden}
+        .table-wrap{background:var(--card);backdrop-filter:blur(12px);border-radius:16px;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.2);overflow:hidden}
         .table-wrap table{width:100%;border-collapse:collapse}
-        .table-wrap th,.table-wrap td{padding:12px 16px;text-align:left;font-size:13px;border-bottom:1px solid rgba(224,219,211,.5)}
-        .table-wrap th{background:rgba(61,53,41,.03);font-weight:600;color:var(--text-2);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+        .table-wrap th,.table-wrap td{padding:12px 16px;text-align:left;font-size:13px;border-bottom:1px solid rgba(30, 58, 95, .5)}
+        .table-wrap th{background:rgba(0, 0, 0, .2);font-weight:600;color:var(--accent);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
         .table-wrap tr:last-child td{border-bottom:none}
-        .table-wrap tr:hover td{background:rgba(61,53,41,.02)}
-        .table-wrap .mono{font-family:'Consolas','Monaco',monospace;font-size:13px}
+        .table-wrap tr:hover td{background:rgba(0, 229, 255, .05)}
+        .table-wrap .mono{font-family:'Consolas','Monaco',monospace;font-size:13px;color:var(--accent);}
         .table-wrap .empty{text-align:center;padding:40px;color:var(--text-3)}
         .badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600}
-        .badge-unused{background:rgba(59,130,246,.1);color:#2563eb}
-        .badge-used{background:rgba(22,163,74,.1);color:#16a34a}
-        .badge-disabled{background:rgba(148,163,184,.15);color:#64748b}
-        .badge-pending{background:rgba(245,158,11,.1);color:#d97706}
-        .badge-active{background:rgba(22,163,74,.1);color:#16a34a}
-        .badge-full{background:rgba(239,68,68,.1);color:#dc2626}
-        .badge-success{background:rgba(22,163,74,.1);color:#16a34a}
-        .badge-failed,.badge-invite_failed,.badge-invalid_code,.badge-used_code,.badge-disabled_code,.badge-pending_code{background:rgba(239,68,68,.1);color:#dc2626}
-        .badge-token_error,.badge-rate_limited{background:rgba(245,158,11,.1);color:#d97706}
+        .badge-unused{background:rgba(0, 229, 255, .1);color:#00e5ff}
+        .badge-used{background:rgba(0, 255, 136, .1);color:#00ff88}
+        .badge-disabled{background:rgba(148,163,184,.15);color:#94a3b8}
+        .badge-pending{background:rgba(255, 170, 0, .1);color:#ffaa00}
+        .badge-active{background:rgba(0, 255, 136, .1);color:#00ff88}
+        .badge-full{background:rgba(255, 77, 77, .1);color:#ff4d4d}
+        .badge-success{background:rgba(0, 255, 136, .1);color:#00ff88}
+        .badge-failed,.badge-invite_failed,.badge-invalid_code,.badge-used_code,.badge-disabled_code,.badge-pending_code{background:rgba(255, 77, 77, .1);color:#ff4d4d}
+        .badge-token_error,.badge-rate_limited{background:rgba(255, 170, 0, .1);color:#ffaa00}
         .pagination{display:flex;align-items:center;justify-content:center;gap:4px;padding:16px}
-        .pg-btn{min-width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;cursor:pointer;transition:all .15s ease}
-        .pg-btn:hover:not(:disabled):not(.active){background:rgba(61,53,41,.05)}
-        .pg-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+        .pg-btn{min-width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:rgba(0,0,0,0.3);color:var(--text);cursor:pointer;transition:all .15s ease}
+        .pg-btn:hover:not(:disabled):not(.active){background:rgba(0, 229, 255, .1)}
+        .pg-btn.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:bold;}
         .pg-btn:disabled{opacity:.4;cursor:not-allowed}
         .pg-info{margin-left:12px;font-size:13px;color:var(--text-2)}
-        .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s ease}
+        .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s ease}
         .modal-mask.show{opacity:1;pointer-events:auto}
-        .modal{background:#fff;border-radius:20px;padding:32px;width:90%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.15);transform:scale(.95) translateY(10px);transition:transform .25s ease}
+        .modal{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:32px;width:90%;max-width:480px;box-shadow:0 0 30px rgba(0, 229, 255, .15);transform:scale(.95) translateY(10px);transition:transform .25s ease}
         .modal-mask.show .modal{transform:scale(1) translateY(0)}
-        .modal h3{font-size:18px;font-weight:700;margin-bottom:20px}
+        .modal h3{font-size:18px;font-weight:700;margin-bottom:20px;color:var(--accent);}
         .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px}
-        .code-result{max-height:200px;overflow-y:auto;background:#faf9f6;border-radius:10px;padding:12px;font-family:'Consolas',monospace;font-size:13px;margin-top:12px;border:1px solid var(--border);white-space:pre-wrap;word-break:break-all}
-        .settings-card{background:var(--card);backdrop-filter:blur(12px);border-radius:16px;padding:28px;border:1px solid rgba(255,255,255,.6);box-shadow:0 2px 12px rgba(0,0,0,.03);max-width:560px}
-        .settings-card h3{font-size:16px;font-weight:700;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+        .code-result{max-height:200px;overflow-y:auto;background:rgba(0,0,0,0.5);border-radius:10px;padding:12px;font-family:'Consolas',monospace;font-size:13px;margin-top:12px;border:1px solid var(--border);color:var(--accent);white-space:pre-wrap;word-break:break-all}
+        .settings-card{background:var(--card);backdrop-filter:blur(12px);border-radius:16px;padding:28px;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.2);max-width:560px}
+        .settings-card h3{font-size:16px;font-weight:700;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);color:var(--accent);}
         .toast-container{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px}
-        .toast{padding:12px 20px;border-radius:12px;font-size:13px;font-weight:500;box-shadow:0 6px 20px rgba(0,0,0,.12);transform:translateX(120%);transition:transform .3s ease}
+        .toast{padding:12px 20px;border-radius:12px;font-size:13px;font-weight:500;box-shadow:0 6px 20px rgba(0,0,0,.3);transform:translateX(120%);transition:transform .3s ease;backdrop-filter: blur(10px);}
         .toast.show{transform:translateX(0)}
-        .toast-ok{background:#f0fdf4;color:#16a34a;border:1px solid rgba(22,163,74,.2)}
-        .toast-err{background:#fef2f2;color:#dc2626;border:1px solid rgba(220,38,38,.2)}
+        .toast-ok{background:rgba(0, 255, 136, .1);color:#00ff88;border:1px solid rgba(0, 255, 136, .3)}
+        .toast-err{background:rgba(255, 77, 77, .1);color:#ff4d4d;border:1px solid rgba(255, 77, 77, .3)}
         .menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:4px}
         .menu-toggle svg{width:22px;height:22px;color:var(--text)}
+        .dev-badge {margin-top: 20px; text-align: center; font-size: 12px; color: var(--text-3);}
+        .dev-badge a {color: var(--accent); text-decoration: none;}
         @media(max-width:768px){
             .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main-wrap{margin-left:0}.menu-toggle{display:block}.content{padding:16px}
             .stats-grid{grid-template-columns:repeat(2,1fr)}.toolbar .input{min-width:140px}.table-wrap{overflow-x:auto}.table-wrap table{min-width:600px}
         }
-        .backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:90}
+        .backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:90}
         @media(max-width:768px){.sidebar.open~.backdrop{display:block}}
-        .token-secret{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:monospace;font-size:12px;color:var(--text-3)}
     </style>
 </head>
 <body>
     <div id="loginView" class="login-view">
         <div class="login-card">
             <div class="logo-wrap"><div class="logo"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div></div>
-            <h1>后台管理</h1><p>请输入管理员密码</p>
+            <h1>Panel Admin</h1><p>Masukkan Kata Sandi Admin</p>
             <form id="loginForm">
-                <div class="form-group"><label for="loginPwd">密码</label><input type="password" id="loginPwd" class="input" placeholder="请输入密码" required autocomplete="current-password"></div>
-                <button type="submit" class="btn btn-primary btn-full" id="loginBtn"><span class="btn-text">登 录</span><div class="spinner"></div></button>
+                <div class="form-group"><label for="loginPwd">Kata Sandi</label><input type="password" id="loginPwd" class="input" placeholder="Masukkan kata sandi..." required autocomplete="current-password"></div>
+                <button type="submit" class="btn btn-primary btn-full" id="loginBtn"><span class="btn-text">MASUK</span><div class="spinner"></div></button>
             </form>
-            <div id="loginMsg" style="margin-top:16px;font-size:13px;color:#dc2626;text-align:center;display:none"></div>
+            <div id="loginMsg" style="margin-top:16px;font-size:13px;color:#ff4d4d;text-align:center;display:none"></div>
+            <div class="dev-badge">Modified by <a href="https://t.me/premium2in" target="_blank">t.me/premium2in</a></div>
         </div>
     </div>
 
     <div id="adminPanel" class="admin-panel" style="display:none">
         <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header"><h2><svg viewBox="0 0 24 24" fill="white"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>Admin</h2></div>
+            <div class="sidebar-header"><h2><svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>Admin</h2></div>
             <nav class="sidebar-nav">
-                <div class="nav-item active" data-view="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>仪表盘</div>
-                <div class="nav-item" data-view="tokens"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4m0 14v4m-9.5-13.5 3 1.5m13-1.5-3 1.5m-13 4.5 3-1.5m13 4.5-3-1.5"/></svg>母号管理</div>
-                <div class="nav-item" data-view="codes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2m0 10v2m0-8v2"/></svg>卡密管理</div>
-                <div class="nav-item" data-view="records"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 12h6m-6 4h6"/></svg>邀请记录</div>
-                <div class="nav-item" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>设置</div>
+                <div class="nav-item active" data-view="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dasbor</div>
+                <div class="nav-item" data-view="tokens"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4m0 14v4m-9.5-13.5 3 1.5m13-1.5-3 1.5m-13 4.5 3-1.5m13 4.5-3-1.5"/></svg>Akun Utama</div>
+                <div class="nav-item" data-view="codes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2m0 10v2m0-8v2"/></svg>Manajemen Kode</div>
+                <div class="nav-item" data-view="records"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 12h6m-6 4h6"/></svg>Riwayat</div>
+                <div class="nav-item" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>Pengaturan</div>
             </nav>
-            <div class="sidebar-footer"><div class="nav-item" onclick="location.href='/'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4m-5-4l5-5-5-5m5 5H3"/></svg>返回前台</div></div>
+            <div class="sidebar-footer">
+                <div class="nav-item" onclick="location.href='/'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4m-5-4l5-5-5-5m5 5H3"/></svg>Kembali ke Beranda</div>
+                <div class="dev-badge" style="margin-top:10px;text-align:left;padding-left:14px;">Modified by <a href="https://t.me/premium2in" target="_blank">t.me/premium2in</a></div>
+            </div>
         </aside>
         <div class="backdrop" id="backdrop"></div>
         <div class="main-wrap">
             <header class="topbar">
                 <div style="display:flex;align-items:center;gap:12px">
                     <button class="menu-toggle" id="menuToggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
-                    <span class="topbar-title" id="pageTitle">仪表盘</span>
+                    <span class="topbar-title" id="pageTitle">Dasbor</span>
                 </div>
                 <div class="topbar-right">
-                    <button class="btn btn-secondary btn-sm" id="refreshBtn">刷新</button>
-                    <button class="btn btn-danger btn-sm" id="logoutBtn">退出</button>
+                    <button class="btn btn-secondary btn-sm" id="refreshBtn">Segarkan</button>
+                    <button class="btn btn-danger btn-sm" id="logoutBtn">Keluar</button>
                 </div>
             </header>
             <div class="content">
                 <section id="viewDashboard" class="view active"><div class="stats-grid" id="statsGrid"></div></section>
 
                 <section id="viewTokens" class="view">
-                    <div class="toolbar"><div class="toolbar-space"></div><button class="btn btn-primary btn-sm" id="btnAddToken">添加母号</button></div>
-                    <div class="table-wrap"><table><thead><tr><th>ID</th><th>标签</th><th>邮箱</th><th>状态</th><th>席位</th><th>过期时间</th><th>操作</th></tr></thead><tbody id="tokensBody"></tbody></table></div>
+                    <div class="toolbar"><div class="toolbar-space"></div><button class="btn btn-primary btn-sm" id="btnAddToken">Tambah Akun</button></div>
+                    <div class="table-wrap"><table><thead><tr><th>ID</th><th>Tag</th><th>Email</th><th>Status</th><th>Kursi</th><th>Kedaluwarsa</th><th>Aksi</th></tr></thead><tbody id="tokensBody"></tbody></table></div>
                 </section>
 
                 <section id="viewCodes" class="view">
                     <div class="toolbar">
-                        <input type="text" class="input" id="codeSearch" placeholder="搜索卡密或邮箱...">
-                        <select class="input" id="codeStatusFilter" style="width:130px"><option value="">全部状态</option><option value="unused">未使用</option><option value="used">已使用</option><option value="pending">处理中</option><option value="disabled">已禁用</option></select>
+                        <input type="text" class="input" id="codeSearch" placeholder="Cari kode atau email...">
+                        <select class="input" id="codeStatusFilter" style="width:130px"><option value="">Semua Status</option><option value="unused">Tersedia</option><option value="used">Terpakai</option><option value="pending">Diproses</option><option value="disabled">Nonaktif</option></select>
                         <div class="toolbar-space"></div>
-                        <button class="btn btn-secondary btn-sm" id="btnImport">导入卡密</button>
-                        <button class="btn btn-primary btn-sm" id="btnGenerate">生成卡密</button>
+                        <button class="btn btn-secondary btn-sm" id="btnImport">Impor Kode</button>
+                        <button class="btn btn-primary btn-sm" id="btnGenerate">Buat Kode</button>
                     </div>
-                    <div class="table-wrap"><table><thead><tr><th style="width:50px">ID</th><th>卡密</th><th>状态</th><th>用量</th><th>使用邮箱</th><th>使用时间</th><th>创建时间</th><th>操作</th></tr></thead><tbody id="codesBody"></tbody></table></div>
+                    <div class="table-wrap"><table><thead><tr><th style="width:50px">ID</th><th>Kode</th><th>Status</th><th>Pakai</th><th>Email Pengguna</th><th>Waktu Pakai</th><th>Waktu Dibuat</th><th>Aksi</th></tr></thead><tbody id="codesBody"></tbody></table></div>
                     <div id="codesPagination"></div>
                 </section>
 
                 <section id="viewRecords" class="view">
                     <div class="toolbar">
-                        <input type="text" class="input" id="recordEmail" placeholder="搜索邮箱...">
-                        <select class="input" id="recordStatusFilter" style="width:130px"><option value="">全部状态</option><option value="success">成功</option><option value="invite_failed">邀请失败</option><option value="invalid_code">无效卡密</option><option value="used_code">已用卡密</option><option value="rate_limited">频率限制</option><option value="token_error">Token错误</option></select>
+                        <input type="text" class="input" id="recordEmail" placeholder="Cari email...">
+                        <select class="input" id="recordStatusFilter" style="width:140px"><option value="">Semua Status</option><option value="success">Sukses</option><option value="invite_failed">Gagal Undang</option><option value="invalid_code">Kode Tidak Valid</option><option value="used_code">Kode Terpakai</option><option value="rate_limited">Limit Request</option><option value="token_error">Token Error</option></select>
                     </div>
-                    <div class="table-wrap"><table><thead><tr><th style="width:50px">ID</th><th>邮箱</th><th>卡密</th><th>状态</th><th>IP</th><th>消息</th><th>时间</th></tr></thead><tbody id="recordsBody"></tbody></table></div>
+                    <div class="table-wrap"><table><thead><tr><th style="width:50px">ID</th><th>Email</th><th>Kode</th><th>Status</th><th>IP</th><th>Pesan</th><th>Waktu</th></tr></thead><tbody id="recordsBody"></tbody></table></div>
                     <div id="recordsPagination"></div>
                 </section>
 
                 <section id="viewSettings" class="view">
                     <div class="settings-card">
-                        <h3>系统设置</h3>
-                        <div class="form-group"><label>同IP兑换冷却（秒）</label><input type="number" class="input" id="setIpCooldown" min="0"></div>
-                        <div class="form-group"><label>默认卡密兑换次数</label><input type="number" class="input" id="setDefaultLimit" min="1"></div>
-                        <button class="btn btn-primary" id="btnSaveSettings">保存设置</button>
+                        <h3>Pengaturan Sistem</h3>
+                        <div class="form-group"><label>Cooldown Tukar per IP (detik)</label><input type="number" class="input" id="setIpCooldown" min="0"></div>
+                        <div class="form-group"><label>Batas Pakai Kode Default</label><input type="number" class="input" id="setDefaultLimit" min="1"></div>
+                        <button class="btn btn-primary" id="btnSaveSettings">Simpan Pengaturan</button>
                     </div>
                 </section>
             </div>
         </div>
     </div>
 
-    <!-- 添加Token弹窗 -->
     <div class="modal-mask" id="tokenModal">
         <div class="modal">
-            <h3>添加 Team 母号</h3>
-            <div class="form-group"><label>JWT Token</label><textarea class="input" id="tokenInput" placeholder="粘贴 JWT Token..." style="min-height:80px"></textarea></div>
-            <div class="form-group"><label>备注标签</label><input type="text" class="input" id="tokenLabel" placeholder="如：账号A" maxlength="64"></div>
-            <div class="form-group"><label>座位上限（0=不限制显示）</label><input type="number" class="input" id="tokenSeatLimit" value="0" min="0"></div>
-            <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('tokenModal')">取消</button><button class="btn btn-primary" id="btnDoAddToken">添加</button></div>
+            <h3>Tambah Akun Utama</h3>
+            <div class="form-group"><label>JWT Token</label><textarea class="input" id="tokenInput" placeholder="Tempel JWT Token di sini..." style="min-height:80px"></textarea></div>
+            <div class="form-group"><label>Tag / Catatan</label><input type="text" class="input" id="tokenLabel" placeholder="Contoh: Akun A" maxlength="64"></div>
+            <div class="form-group"><label>Batas Kursi (0 = Tidak Dibatasi)</label><input type="number" class="input" id="tokenSeatLimit" value="0" min="0"></div>
+            <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('tokenModal')">Batal</button><button class="btn btn-primary" id="btnDoAddToken">Tambah</button></div>
         </div>
     </div>
 
-    <!-- 生成卡密弹窗 -->
     <div class="modal-mask" id="generateModal">
         <div class="modal">
-            <h3>生成卡密</h3>
-            <div class="form-group"><label>数量</label><input type="number" class="input" id="genCount" value="10" min="1" max="500"></div>
-            <div class="form-group"><label>前缀</label><input type="text" class="input" id="genPrefix" value="TEAM" maxlength="16"></div>
-            <div class="form-group"><label>随机长度</label><input type="number" class="input" id="genLength" value="10" min="6" max="32"></div>
-            <div class="form-group"><label>可用次数</label><input type="number" class="input" id="genMaxUses" value="1" min="1"></div>
+            <h3>Buat Kode Undangan</h3>
+            <div class="form-group"><label>Jumlah</label><input type="number" class="input" id="genCount" value="10" min="1" max="500"></div>
+            <div class="form-group"><label>Awalan</label><input type="text" class="input" id="genPrefix" value="TEAM" maxlength="16"></div>
+            <div class="form-group"><label>Panjang Acak</label><input type="number" class="input" id="genLength" value="10" min="6" max="32"></div>
+            <div class="form-group"><label>Batas Penggunaan</label><input type="number" class="input" id="genMaxUses" value="1" min="1"></div>
             <div class="code-result" id="genResult" style="display:none"></div>
-            <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('generateModal')">关闭</button><button class="btn btn-primary" id="btnDoGenerate">生成</button></div>
+            <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('generateModal')">Tutup</button><button class="btn btn-primary" id="btnDoGenerate">Buat</button></div>
         </div>
     </div>
 
-    <!-- 导入卡密弹窗 -->
     <div class="modal-mask" id="importModal">
         <div class="modal">
-            <h3>导入卡密</h3>
-            <div class="form-group"><label>卡密列表（每行一个）</label><textarea class="input" id="importCodes" placeholder="TEAM-XXXXXXXXXX"></textarea></div>
-            <div class="form-group"><label>可用次数</label><input type="number" class="input" id="importMaxUses" value="1" min="1"></div>
-            <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('importModal')">取消</button><button class="btn btn-primary" id="btnDoImport">导入</button></div>
+            <h3>Impor Kode Undangan</h3>
+            <div class="form-group"><label>Daftar Kode (satu per baris)</label><textarea class="input" id="importCodes" placeholder="TEAM-XXXXXXXXXX"></textarea></div>
+            <div class="form-group"><label>Batas Penggunaan</label><input type="number" class="input" id="importMaxUses" value="1" min="1"></div>
+            <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('importModal')">Batal</button><button class="btn btn-primary" id="btnDoImport">Impor</button></div>
         </div>
     </div>
 
@@ -229,21 +243,21 @@
 
     <script>
     const $ = id => document.getElementById(id);
-    const titles = {dashboard:'仪表盘',tokens:'母号管理',codes:'卡密管理',records:'邀请记录',settings:'设置'};
+    const titles = {dashboard:'Dasbor',tokens:'Akun Utama',codes:'Manajemen Kode',records:'Riwayat Undangan',settings:'Pengaturan'};
     let currentView = 'dashboard';
 
     function esc(s) { return s == null ? '' : String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-    function fmtTime(iso) { if(!iso) return '-'; try { return new Date(iso+(iso.endsWith('Z')?'':'Z')).toLocaleString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}); } catch { return iso; } }
-    function fmtExp(ts) { if(!ts) return '-'; try { return new Date(ts*1000).toLocaleString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}); } catch { return ts; } }
+    function fmtTime(iso) { if(!iso) return '-'; try { return new Date(iso+(iso.endsWith('Z')?'':'Z')).toLocaleString('id-ID',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}); } catch { return iso; } }
+    function fmtExp(ts) { if(!ts) return '-'; try { return new Date(ts*1000).toLocaleString('id-ID',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}); } catch { return ts; } }
     function toast(msg, ok=true) { const el=document.createElement('div'); el.className=`toast toast-${ok?'ok':'err'}`; el.textContent=msg; $('toastContainer').appendChild(el); requestAnimationFrame(()=>el.classList.add('show')); setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),300)},3000); }
 
     async function api(path, opts={}) {
         const resp = await fetch('/admin/api'+path, {headers:{'Content-Type':'application/json'}, ...opts});
-        if (resp.status===401) { $('adminPanel').style.display='none'; $('loginView').style.display=''; toast('登录已过期',false); throw new Error('Unauthorized'); }
+        if (resp.status===401) { $('adminPanel').style.display='none'; $('loginView').style.display=''; toast('Sesi kedaluwarsa, silakan masuk lagi',false); throw new Error('Unauthorized'); }
         return resp.json();
     }
 
-    // 登录
+    // Login
     $('loginForm').addEventListener('submit', async e => {
         e.preventDefault(); const btn=$('loginBtn'), msg=$('loginMsg');
         btn.classList.add('loading'); btn.disabled=true; msg.style.display='none';
@@ -251,12 +265,12 @@
             const data = await api('/login', {method:'POST', body:JSON.stringify({password:$('loginPwd').value})});
             if (data.success) { $('loginView').style.display='none'; $('adminPanel').style.display=''; loadView(); }
             else { msg.textContent=data.message; msg.style.display=''; }
-        } catch(err) { if(err.message!=='Unauthorized'){msg.textContent='网络错误';msg.style.display='';} }
+        } catch(err) { if(err.message!=='Unauthorized'){msg.textContent='Terjadi kesalahan jaringan';msg.style.display='';} }
         finally { btn.classList.remove('loading'); btn.disabled=false; }
     });
     $('logoutBtn').addEventListener('click', async()=>{ await api('/logout',{method:'POST'}).catch(()=>{}); $('adminPanel').style.display='none'; $('loginView').style.display=''; $('loginPwd').value=''; });
 
-    // 导航
+    // Navigasi
     document.querySelectorAll('.nav-item[data-view]').forEach(el=>{
         el.addEventListener('click',()=>{
             document.querySelectorAll('.nav-item[data-view]').forEach(n=>n.classList.remove('active')); el.classList.add('active');
@@ -274,27 +288,27 @@
         ({dashboard:loadStats, tokens:loadTokens, codes:loadCodes, records:loadRecords, settings:loadSettings})[currentView]?.();
     }
 
-    // 仪表盘
+    // Dasbor
     async function loadStats() {
         try {
             const d = await api('/stats');
             const c=d.codes, r=d.records, t=d.tokens;
             $('statsGrid').innerHTML = [
-                ['#3d3529',c.total,'卡密总数'],['#3b82f6',c.unused,'未使用'],['#22c55e',c.used,'已使用'],['#f59e0b',c.pending,'处理中'],['#94a3b8',c.disabled,'已禁用'],
-                ['#16a34a',r.success,'邀请成功'],['#ef4444',r.failed,'邀请失败'],['#8b5cf6',r.total,'记录总数'],
-                ['#059669',t.active,'可用母号'],['#dc2626',t.full_count,'已满母号'],
+                ['#00e5ff',c.total,'Total Kode'],['#0055ff',c.unused,'Tersedia'],['#00ff88',c.used,'Terpakai'],['#ffaa00',c.pending,'Diproses'],['#94a3b8',c.disabled,'Nonaktif'],
+                ['#00ff88',r.success,'Undangan Sukses'],['#ff4d4d',r.failed,'Undangan Gagal'],['#8b5cf6',r.total,'Total Riwayat'],
+                ['#00ff88',t.active,'Akun Tersedia'],['#ff4d4d',t.full_count,'Akun Penuh'],
             ].map(([color,num,label])=>`<div class="stat-card" style="--card-color:${color}"><div class="num">${num}</div><div class="label">${esc(label)}</div></div>`).join('');
         } catch{}
     }
 
-    // 母号管理
+    // Akun Utama
     async function loadTokens() {
         try {
             const d = await api('/tokens');
             const body = $('tokensBody');
-            if(!d.items.length){ body.innerHTML='<tr><td colspan="7" class="empty">暂无母号，请添加</td></tr>'; return; }
+            if(!d.items.length){ body.innerHTML='<tr><td colspan="7" class="empty">Belum ada akun, silakan tambahkan</td></tr>'; return; }
             body.innerHTML = d.items.map(r=>{
-                const exp = r.exp ? (r.exp < Date.now()/1000 ? '<span style="color:#dc2626">已过期</span>' : fmtExp(r.exp)) : '-';
+                const exp = r.exp ? (r.exp < Date.now()/1000 ? '<span style="color:#ff4d4d">Kedaluwarsa</span>' : fmtExp(r.exp)) : '-';
                 const seats = r.seat_limit > 0 ? `${r.seat_used} / ${r.seat_limit}` : (r.seat_used > 0 ? `${r.seat_used} / ?` : '-');
                 return `<tr>
                     <td>${r.id}</td>
@@ -310,28 +324,28 @@
     }
 
     function tokenActions(r) {
-        let h = `<button class="btn btn-secondary btn-sm" onclick="refreshSeats(${r.id})">刷新席位</button> `;
-        if(r.status==='active') h+=`<button class="btn btn-danger btn-sm" onclick="toggleToken(${r.id},'disable')">禁用</button> `;
-        else h+=`<button class="btn btn-success btn-sm" onclick="toggleToken(${r.id},'enable')">启用</button> `;
-        h+=`<button class="btn btn-danger btn-sm" onclick="deleteToken(${r.id})">删除</button>`;
+        let h = `<button class="btn btn-secondary btn-sm" onclick="refreshSeats(${r.id})">Refresh Kursi</button> `;
+        if(r.status==='active') h+=`<button class="btn btn-danger btn-sm" onclick="toggleToken(${r.id},'disable')">Nonaktifkan</button> `;
+        else h+=`<button class="btn btn-success btn-sm" onclick="toggleToken(${r.id},'enable')">Aktifkan</button> `;
+        h+=`<button class="btn btn-danger btn-sm" onclick="deleteToken(${r.id})">Hapus</button>`;
         return h;
     }
 
     async function refreshSeats(id) {
-        try { const d=await api(`/tokens/${id}/seats`,{method:'POST'}); toast(d.success?`当前成员: ${d.seat_used}`:d.message, d.success); if(d.success) loadTokens(); } catch{}
+        try { const d=await api(`/tokens/${id}/seats`,{method:'POST'}); toast(d.success?`Pengguna Saat Ini: ${d.seat_used}`:d.message, d.success); if(d.success) loadTokens(); } catch{}
     }
     async function toggleToken(id, action) {
-        try { const d=await api(`/tokens/${id}/${action}`,{method:'PATCH'}); toast(d.success?'操作成功':d.message, d.success); if(d.success) loadTokens(); } catch{}
+        try { const d=await api(`/tokens/${id}/${action}`,{method:'PATCH'}); toast(d.success?'Berhasil':d.message, d.success); if(d.success) loadTokens(); } catch{}
     }
     async function deleteToken(id) {
-        if(!confirm('确定删除此母号？')) return;
-        try { const d=await api(`/tokens/${id}`,{method:'DELETE'}); toast(d.success?'已删除':d.message, d.success); if(d.success) loadTokens(); } catch{}
+        if(!confirm('Apakah Anda yakin ingin menghapus akun ini?')) return;
+        try { const d=await api(`/tokens/${id}`,{method:'DELETE'}); toast(d.success?'Berhasil dihapus':d.message, d.success); if(d.success) loadTokens(); } catch{}
     }
 
     $('btnAddToken').addEventListener('click',()=>{ $('tokenInput').value=''; $('tokenLabel').value=''; $('tokenSeatLimit').value='0'; openModal('tokenModal'); });
     $('btnDoAddToken').addEventListener('click', async()=>{
         const token=$('tokenInput').value.trim();
-        if(!token){toast('请输入Token',false);return;}
+        if(!token){toast('Silakan masukkan Token',false);return;}
         const btn=$('btnDoAddToken'); btn.disabled=true;
         try {
             const d=await api('/tokens',{method:'POST',body:JSON.stringify({token, label:$('tokenLabel').value.trim(), seat_limit:parseInt($('tokenSeatLimit').value)||0})});
@@ -340,7 +354,7 @@
         } catch{} finally{btn.disabled=false;}
     });
 
-    // 卡密管理
+    // Manajemen Kode
     let codesTimer;
     $('codeSearch').addEventListener('input',()=>{clearTimeout(codesTimer);codesTimer=setTimeout(()=>loadCodes(),300);});
     $('codeStatusFilter').addEventListener('change',()=>loadCodes());
@@ -352,7 +366,7 @@
         if(status) url+=`&status=${encodeURIComponent(status)}`;
         try {
             const d=await api(url), body=$('codesBody');
-            if(!d.items.length){ body.innerHTML='<tr><td colspan="8" class="empty">暂无数据</td></tr>'; }
+            if(!d.items.length){ body.innerHTML='<tr><td colspan="8" class="empty">Tidak ada data</td></tr>'; }
             else { body.innerHTML=d.items.map(r=>`<tr>
                 <td>${r.id}</td><td class="mono">${esc(r.code)}</td>
                 <td><span class="badge badge-${esc(r.status)}">${esc(r.status)}</span></td>
@@ -365,14 +379,14 @@
     }
 
     function codeActions(r) {
-        if(r.status==='unused'||r.status==='pending') return `<button class="btn btn-danger btn-sm" onclick="disableCode(${r.id})">禁用</button>`;
-        if(r.status==='disabled') return `<button class="btn btn-success btn-sm" onclick="enableCode(${r.id})">启用</button>`;
+        if(r.status==='unused'||r.status==='pending') return `<button class="btn btn-danger btn-sm" onclick="disableCode(${r.id})">Nonaktifkan</button>`;
+        if(r.status==='disabled') return `<button class="btn btn-success btn-sm" onclick="enableCode(${r.id})">Aktifkan</button>`;
         return '-';
     }
-    async function disableCode(id){try{const d=await api(`/codes/${id}/disable`,{method:'PATCH'});toast(d.success?'已禁用':d.message,d.success);if(d.success)loadCodes();}catch{}}
-    async function enableCode(id){try{const d=await api(`/codes/${id}/enable`,{method:'PATCH'});toast(d.success?'已启用':d.message,d.success);if(d.success)loadCodes();}catch{}}
+    async function disableCode(id){try{const d=await api(`/codes/${id}/disable`,{method:'PATCH'});toast(d.success?'Dinonaktifkan':d.message,d.success);if(d.success)loadCodes();}catch{}}
+    async function enableCode(id){try{const d=await api(`/codes/${id}/enable`,{method:'PATCH'});toast(d.success?'Diaktifkan':d.message,d.success);if(d.success)loadCodes();}catch{}}
 
-    // 邀请记录
+    // Riwayat
     let recordsTimer;
     $('recordEmail').addEventListener('input',()=>{clearTimeout(recordsTimer);recordsTimer=setTimeout(()=>loadRecords(),300);});
     $('recordStatusFilter').addEventListener('change',()=>loadRecords());
@@ -384,7 +398,7 @@
         if(status) url+=`&status=${encodeURIComponent(status)}`;
         try {
             const d=await api(url), body=$('recordsBody');
-            if(!d.items.length){ body.innerHTML='<tr><td colspan="7" class="empty">暂无数据</td></tr>'; }
+            if(!d.items.length){ body.innerHTML='<tr><td colspan="7" class="empty">Tidak ada data</td></tr>'; }
             else { body.innerHTML=d.items.map(r=>`<tr>
                 <td>${r.id}</td><td>${esc(r.email)}</td><td class="mono">${esc(r.code||'-')}</td>
                 <td><span class="badge badge-${esc(r.invite_status)}">${esc(r.invite_status)}</span></td>
@@ -394,29 +408,29 @@
         } catch{}
     }
 
-    // 设置
+    // Pengaturan
     async function loadSettings() {
         try { const d=await api('/settings'); $('setIpCooldown').value=d.ip_cooldown||3600; $('setDefaultLimit').value=d.default_redeem_limit||1; } catch{}
     }
     $('btnSaveSettings').addEventListener('click', async()=>{
         try {
             const d=await api('/settings',{method:'PUT',body:JSON.stringify({ip_cooldown:$('setIpCooldown').value, default_redeem_limit:$('setDefaultLimit').value})});
-            toast(d.success?'设置已保存':d.message, d.success);
+            toast(d.success?'Pengaturan berhasil disimpan':d.message, d.success);
         } catch{}
     });
 
-    // 分页
+    // Paginasi
     function renderPagination(cid,{total,page,per_page},loadFn) {
         const pages=Math.ceil(total/per_page), c=$(cid);
         if(pages<=1){c.innerHTML='';return;}
         const nums=[];
         if(pages<=7){for(let i=1;i<=pages;i++)nums.push(i);}
         else{nums.push(1);if(page>3)nums.push('…');for(let i=Math.max(2,page-1);i<=Math.min(pages-1,page+1);i++)nums.push(i);if(page<pages-2)nums.push('…');nums.push(pages);}
-        c.innerHTML=`<div class="pagination"><button class="pg-btn" data-p="${page-1}" ${page<=1?'disabled':''}>‹</button>${nums.map(n=>typeof n==='number'?`<button class="pg-btn ${n===page?'active':''}" data-p="${n}">${n}</button>`:`<span style="padding:0 4px;color:var(--text-3)">${n}</span>`).join('')}<button class="pg-btn" data-p="${page+1}" ${page>=pages?'disabled':''}>›</button><span class="pg-info">共 ${total} 条</span></div>`;
+        c.innerHTML=`<div class="pagination"><button class="pg-btn" data-p="${page-1}" ${page<=1?'disabled':''}>‹</button>${nums.map(n=>typeof n==='number'?`<button class="pg-btn ${n===page?'active':''}" data-p="${n}">${n}</button>`:`<span style="padding:0 4px;color:var(--text-3)">${n}</span>`).join('')}<button class="pg-btn" data-p="${page+1}" ${page>=pages?'disabled':''}>›</button><span class="pg-info">Total ${total}</span></div>`;
         c.querySelectorAll('.pg-btn:not([disabled])').forEach(b=>b.addEventListener('click',()=>loadFn(parseInt(b.dataset.p))));
     }
 
-    // 弹窗
+    // Modal
     function openModal(id){$(id).classList.add('show');}
     function closeModal(id){$(id).classList.remove('show');}
     document.querySelectorAll('.modal-mask').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id);}));
@@ -428,25 +442,25 @@
         const btn=$('btnDoGenerate'); btn.disabled=true;
         try {
             const d=await api('/codes/generate',{method:'POST',body:JSON.stringify({count:parseInt($('genCount').value)||10,prefix:$('genPrefix').value||'TEAM',length:parseInt($('genLength').value)||10,max_uses:parseInt($('genMaxUses').value)||1})});
-            if(d.success){$('genResult').textContent=d.codes.join('\n');$('genResult').style.display='';toast(`已生成 ${d.count} 个卡密`);loadCodes();loadStats();}
+            if(d.success){$('genResult').textContent=d.codes.join('\n');$('genResult').style.display='';toast(`Berhasil membuat ${d.count} kode`);loadCodes();loadStats();}
             else toast(d.message,false);
         } catch{} finally{btn.disabled=false;}
     });
 
     $('btnDoImport').addEventListener('click', async()=>{
         const raw=$('importCodes').value.trim();
-        if(!raw){toast('请输入卡密',false);return;}
+        if(!raw){toast('Silakan masukkan kode',false);return;}
         const codes=raw.split(/[\n,;]+/).map(s=>s.trim()).filter(Boolean);
-        if(!codes.length){toast('请输入有效的卡密',false);return;}
+        if(!codes.length){toast('Silakan masukkan kode yang valid',false);return;}
         const btn=$('btnDoImport'); btn.disabled=true;
         try {
             const d=await api('/codes',{method:'POST',body:JSON.stringify({codes, max_uses:parseInt($('importMaxUses').value)||1})});
-            if(d.success){toast(`导入 ${d.inserted} 个，跳过 ${d.skipped} 个重复`);closeModal('importModal');loadCodes();loadStats();}
+            if(d.success){toast(`Berhasil impor ${d.inserted}, ${d.skipped} duplikat dilewati`);closeModal('importModal');loadCodes();loadStats();}
             else toast(d.message,false);
         } catch{} finally{btn.disabled=false;}
     });
 
-    // 初始化
+    // Inisialisasi
     (async()=>{
         try { const d=await fetch('/admin/api/stats').then(r=>r.json()); if(d.codes){$('loginView').style.display='none';$('adminPanel').style.display='';loadView();} } catch{}
     })();
