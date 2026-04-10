@@ -1,7 +1,7 @@
 services:
   team-invite:
     build: .
-    container_name: team-auto-invite
+    container_name: gpt-for-manage-invite
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -11,3 +11,4 @@ services:
       - PORT=8080
     volumes:
       - ./data:/app/data
+      - ./database.json:/app/database.json

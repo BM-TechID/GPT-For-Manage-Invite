@@ -838,4 +838,133 @@ def main() -> None:
 init_db()
 
 if __name__ == "__main__":
+    
+    # ================================================================
+# FITUR RESELLER DASHBOARD (JSON DATABASE)
+# ================================================================
+import json
+
+RESELLER_DB_FILE = 'database.json'
+
+def load_reseller_db():
+    if not os.path.exists(RESELLER_DB_FILE) or os.path.getsize(RESELLER_DB_FILE) == 0:
+        default_db = {"users": {}, "inventory": {}, "history": []}
+        save_reseller_db(default_db)
+        return default_db
+    with open(RESELLER_DB_FILE, 'r') as f:
+        return json.load(f)
+
+def save_reseller_db(data):
+    with open(RESELLER_DB_FILE, 'w') as f:
+        json.dump(data, f, indent=4)
+
+@app.route('/api/reseller/login', methods=['POST'])
+def reseller_login():
+    data = request.get_json(silent=True) or {}
+    db = load_reseller_db()
+    user = data.get('username')
+    pw = data.get('password')
+    
+    # 1. Login Khusus Admin (Baca dari .env)
+    if user == 'admin':
+        if not ADMIN_PASSWORD:
+            return jsonify({"success": False, "msg": "Password Admin belum di-set di .env!"})
+        import secrets
+        if secrets.compare_digest(pw, ADMIN_PASSWORD):
+            return jsonify({"success": True, "role": "admin", "username": "admin"})
+        return jsonify({"success": False, "msg": "Password Admin salah!"})
+            
+    # 2. Login Reseller (Baca dari database.json)
+    if user in db['users'] and db['users'][user]['password'] == pw:
+        if db['users'][user]['status'] != 'approved':
+            return jsonify({"success": False, "msg": "Akun belum di-approve Admin!"})
+        return jsonify({"success": True, "role": db['users'][user]['role'], "username": user})
+        
+    return jsonify({"success": False, "msg": "Username / Password salah!"})
+
+@app.route('/api/reseller/register', methods=['POST'])
+def reseller_register():
+    data = request.get_json(silent=True) or {}
+    db = load_reseller_db()
+    user = data.get('username')
+    pw = data.get('password')
+    
+    if not user or not pw:
+        return jsonify({"success": False, "msg": "Username dan Password wajib diisi!"})
+    if user in db['users'] or user == 'admin':
+        return jsonify({"success": False, "msg": "Username sudah dipakai!"})
+    
+    db['users'][user] = {"password": pw, "role": "reseller", "status": "pending"}
+    db['inventory'][user] = {}
+    save_reseller_db(db)
+    return jsonify({"success": True, "msg": "Pendaftaran berhasil, tunggu approval admin."})
+
+@app.route('/api/reseller/admin_action', methods=['POST'])
+def reseller_admin_action():
+    data = request.get_json(silent=True) or {}
+    db = load_reseller_db()
+    action = data.get('action')
+    target = data.get('target')
+    
+    if action == 'approve':
+        db['users'][target]['status'] = 'approved'
+        save_reseller_db(db)
+        return jsonify({"success": True})
+    elif action == 'delete':
+        if target in db['users']: del db['users'][target]
+        if target in db['inventory']: del db['inventory'][target]
+        save_reseller_db(db)
+        return jsonify({"success": True})
+    elif action == 'add_stock':
+        team = data.get('team')
+        codes = data.get('codes', '').split('\n')
+        if team not in db['inventory'][target]:
+            db['inventory'][target][team] = []
+        db['inventory'][target][team].extend([c.strip() for c in codes if c.strip()])
+        save_reseller_db(db)
+        return jsonify({"success": True})
+    return jsonify({"success": False, "msg": "Aksi tidak valid"})
+
+@app.route('/api/reseller/data', methods=['GET'])
+def reseller_get_data():
+    return jsonify(load_reseller_db())
+
+@app.route('/api/reseller/invite', methods=['POST'])
+def reseller_process_invite():
+    data = request.get_json(silent=True) or {}
+    db = load_reseller_db()
+    user = data.get('username')
+    email = data.get('email')
+    team = data.get('team')
+    
+    if not user or not email or not team:
+        return jsonify({"success": False, "msg": "Data tidak lengkap"}), 400
+        
+    if team not in db['inventory'].get(user, {}) or len(db['inventory'][user][team]) == 0:
+        return jsonify({"success": False, "msg": f"Stok {team} habis! Minta admin isi ulang."})
+    
+    # Ambil 1 kode dari stok
+    used_code = db['inventory'][user][team].pop(0)
+    
+    # Integrasi dengan fungsi redeem_invite bawaan app.py
+    client_ip = get_client_ip()
+    result = redeem_invite(email, used_code, client_ip)
+    
+    if result["success"]:
+        receipt_id = f"REC-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        log = {
+            "id": receipt_id, "reseller": user, "email": email,
+            "team": team, "code": used_code, "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        db['history'].insert(0, log)
+        save_reseller_db(db) 
+        return jsonify({"success": True, "message": result["message"], "receipt": log})
+    else:
+        # Kembalikan kode jika gagal di sistem utama
+        db['inventory'][user][team].insert(0, used_code)
+        return jsonify({"success": False, "message": result["message"]})
+# ================================================================
+    
     main()
+
+

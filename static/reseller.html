@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reseller Portal Pro - Premium2in</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { --bg: #050b14; --card: rgba(10, 20, 35, .85); --text: #e2f1ff; --text-2: #8ab4f8; --border: #1e3a5f; --accent: #00e5ff; --accent-2: #0055ff; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; background-image: radial-gradient(circle at top right, rgba(0, 229, 255, 0.1), transparent 40%);}
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        /* Layout Auth & Dashboard */
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0, 229, 255, .1); display: none; animation: fadeIn 0.4s; }
+        .card.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; color: var(--text-2); margin-bottom: 5px; font-weight: bold;}
+        .input { width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: inherit;}
+        .input:focus { border-color: var(--accent); outline: none;}
+        select.input { appearance: none; cursor: pointer; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300e5ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 10px center; background-size: 16px; padding-right: 30px;}
+        
+        .btn { padding: 12px 15px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: #fff; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; width: 100%; transition: 0.3s;}
+        .btn:hover { box-shadow: 0 4px 15px rgba(0, 229, 255, 0.4); transform: translateY(-2px); }
+        .btn-small { width: auto; font-size: 12px; padding: 6px 12px; margin-right: 5px; background: var(--border); color: #fff; box-shadow: none;}
+        .btn-danger { background: rgba(255, 77, 77, 0.2); color: #ff4d4d; border: 1px solid #ff4d4d;}
+        .btn-success { background: rgba(0, 255, 136, 0.2); color: #00ff88; border: 1px solid #00ff88;}
+        
+        /* Table Admin */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        th, td { border: 1px solid var(--border); padding: 10px; text-align: left; }
+        th { background: rgba(0,0,0,0.4); color: var(--accent); }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;}
+        .toggle-link { text-align: center; font-size: 12px; color: var(--text-2); margin-top: 15px; cursor: pointer; display: block;}
+        .toggle-link:hover { color: var(--accent); }
+        
+        /* Receipt UI */
+        .receipt-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 100; }
+        .receipt-wrapper { width: 90%; max-width: 320px; }
+        .receipt-capture-area { background: #111; border: 2px dashed #444; padding: 25px; text-align: center; font-family: 'Courier New', monospace; border-radius: 8px; margin-bottom: 15px;}
+        .receipt-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px dashed #555; padding-bottom: 10px; color: #fff;}
+        .receipt-details { text-align: left; font-size: 13px; line-height: 1.8; margin-bottom: 20px; color: #aaa; }
+        .receipt-details span { color: #fff; font-weight: bold; }
+        
+        .status-processing { color: #ffaa00; font-size: 15px; font-weight: bold; animation: pulse 1s infinite; }
+        .status-success { color: #00ff88; font-size: 15px; font-weight: bold; }
+        .status-failed { color: #ff4d4d; font-size: 15px; font-weight: bold; }
+        @keyframes pulse { 50% { opacity: 0.5; } }
+        
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .action-btn { padding: 10px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none; text-align: center; text-decoration: none;}
+        .btn-complain { background: rgba(255, 77, 77, 0.1); border: 1px solid #ff4d4d; color: #ff4d4d; grid-column: span 2;}
+        .btn-share { background: rgba(0, 255, 136, 0.1); border: 1px solid #00ff88; color: #00ff88; }
+        .btn-close { background: #333; color: #fff; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card active" id="viewAuth" style="max-width: 400px; margin: 50px auto;">
+        <h2 style="text-align:center; color:var(--accent); margin-bottom: 5px;">Portal Reseller</h2>
+        <p style="text-align:center; font-size: 12px; color:var(--text-2); margin-bottom: 20px;">Premium2in Auto Invite</p>
+        
+        <div id="authMsg" style="color:#ff4d4d; font-size:12px; margin-bottom:10px; text-align:center;"></div>
+        
+        <div id="formLogin">
+            <div class="form-group"><label>Username</label><input type="text" id="user" class="input"></div>
+            <div class="form-group"><label>Password</label><input type="password" id="pass" class="input"></div>
+            <button class="btn" onclick="auth('login')">Masuk</button>
+            <span class="toggle-link" onclick="toggleAuth('register')">Belum punya akun? Daftar Reseller</span>
+        </div>
+
+        <div id="formRegister" style="display: none;">
+            <div class="form-group"><label>Username Baru</label><input type="text" id="regUser" class="input"></div>
+            <div class="form-group"><label>Password</label><input type="password" id="regPass" class="input"></div>
+            <button class="btn" onclick="auth('register')">Daftar Sekarang</button>
+            <span class="toggle-link" onclick="toggleAuth('login')">Sudah punya akun? Masuk</span>
+        </div>
+    </div>
+
+    <div class="card" id="viewAdmin">
+        <div class="header">
+            <h2>Panel Admin Utama</h2>
+            <button class="btn btn-small btn-danger" onclick="logout()">Keluar</button>
+        </div>
+        
+        <h3>Manajemen Reseller</h3>
+        <div style="overflow-x:auto;">
+            <table id="userTable">
+                <thead><tr><th>Username</th><th>Status</th><th>Stok / Inventaris</th><th>Aksi</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <h3 style="margin-top: 30px;">Input Stok Bulk ke Reseller</h3>
+        <div class="form-group"><label>Pilih Reseller</label><select id="adminSelectReseller" class="input"></select></div>
+        <div class="form-group"><label>Tipe Layanan</label><input type="text" id="adminTeam" class="input" placeholder="Contoh: ChatGPT Pro Invite"></div>
+        <div class="form-group"><label>Kode (Pisahkan dengan Enter)</label><textarea id="adminCodes" class="input" style="height:100px; resize:vertical; font-family:monospace;"></textarea></div>
+        <button class="btn btn-success" onclick="addStock()" style="width:auto; padding: 10px 20px;">Tambahkan Stok</button>
+
+        <h3 style="margin-top: 30px;">Riwayat Struk (Audit)</h3>
+        <div style="overflow-x:auto;">
+            <table id="historyTable">
+                <thead><tr><th>ID Struk</th><th>Reseller</th><th>Email Target</th><th>Tipe</th><th>Kode Terpakai</th><th>Waktu</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card" id="viewReseller" style="max-width: 500px; margin: 20px auto;">
+        <div class="header">
+            <h2>Reseller: <span id="resellerName" style="color:var(--accent)"></span></h2>
+            <button class="btn btn-small btn-danger" onclick="logout()">Keluar</button>
+        </div>
+
+        <div style="background:rgba(0,0,0,0.5); padding:15px; border-radius:8px; margin-bottom:20px; border: 1px solid var(--border);">
+            <h4 style="margin-bottom:10px; color:var(--text-2);">Sisa Stok Anda:</h4>
+            <div id="resellerStock" style="font-size:13px; line-height: 1.6;"></div>
+        </div>
+
+        <div class="form-group">
+            <label>Pilih Layanan (Tampil jika ada stok)</label>
+            <select id="resellerTeamSelect" class="input"></select>
+        </div>
+        <div class="form-group">
+            <label>Email Target Client</label>
+            <input type="email" id="resellerEmail" class="input" placeholder="contoh@gmail.com">
+        </div>
+        
+        <button class="btn" onclick="sendInvite()" id="btnProcess">🚀 KIRIM UNDANGAN</button>
+    </div>
+
+    <div class="receipt-overlay" id="receiptModal">
+        <div class="receipt-wrapper" id="receiptWrapper">
+            <div class="receipt-capture-area" id="receiptCapture">
+                <div class="receipt-title">PREMIUM2IN STRUK</div>
+                <div class="status-processing" id="receiptStatus">Memproses...</div>
+                <div class="receipt-details" style="margin-top: 15px;">
+                    Layanan: <span id="r-team">-</span><br>
+                    Target: <span id="r-target">-</span><br>
+                    ID Transaksi: <span id="r-id">-</span><br>
+                    Tanggal: <span id="r-date">-</span><br>
+                    Reseller: <span id="r-reseller">-</span>
+                </div>
+                <div style="font-size: 10px; color: #555; border-top: 1px dashed #444; padding-top: 10px;">
+                    Generated by Universal Auto Invite
+                </div>
+            </div>
+            <div class="action-grid">
+                <button class="action-btn btn-share" id="btnShare" style="display: none;" onclick="shareOrDownloadPNG()">Share PNG</button>
+                <button class="action-btn btn-close" onclick="closeReceipt()">Tutup</button>
+                <a href="#" id="btnComplain" class="action-btn btn-complain" style="display: none;" target="_blank">Lapor Kendala Telegram</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let activeUser = '';
+    let activeRole = '';
+
+    function toggleAuth(type) {
+        document.getElementById('formLogin').style.display = type === 'login' ? 'block' : 'none';
+        document.getElementById('formRegister').style.display = type === 'register' ? 'block' : 'none';
+        document.getElementById('authMsg').innerText = '';
+    }
+
+    async function apiCall(endpoint, data = {}) {
+        try {
+            const res = await fetch(endpoint, { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data) 
+            });
+            return await res.json();
+        } catch(e) {
+            return {success: false, msg: "Koneksi ke server gagal!"};
+        }
+    }
+
+    async function auth(type) {
+        const u = type === 'login' ? document.getElementById('user').value : document.getElementById('regUser').value;
+        const p = type === 'login' ? document.getElementById('pass').value : document.getElementById('regPass').value;
+        
+        if(!u || !p) return alert("Username dan Password wajib diisi!");
+        
+        const endpoint = type === 'login' ? '/api/reseller/login' : '/api/reseller/register';
+        const res = await apiCall(endpoint, {username: u, password: p});
+        
+        if(!res.success) {
+            document.getElementById('authMsg').innerText = res.msg;
+            return;
+        }
+
+        if(type === 'login') {
+            activeUser = res.username;
+            activeRole = res.role;
+            document.getElementById('viewAuth').classList.remove('active');
+            
+            if(activeRole === 'admin') {
+                document.getElementById('viewAdmin').classList.add('active');
+                loadAdminData();
+            } else {
+                document.getElementById('viewReseller').classList.add('active');
+                document.getElementById('resellerName').innerText = activeUser.toUpperCase();
+                document.getElementById('r-reseller').innerText = activeUser.toUpperCase();
+                loadResellerData();
+            }
+        } else {
+            alert(res.msg);
+            toggleAuth('login');
+        }
+    }
+
+    function logout() { location.reload(); }
+
+    // --- Admin Logic ---
+    async function loadAdminData() {
+        const res = await fetch('/api/reseller/data');
+        const db = await res.json();
+        
+        let uHtml = '';
+        let optHtml = '';
+        for(let u in db.users) {
+            if(db.users[u].role === 'admin') continue;
+            let status = db.users[u].status;
+            let inv = JSON.stringify(db.inventory[u] || {}).replace(/[{""}]/g, ' ').trim();
+            
+            let btns = `<button class="btn btn-small btn-danger" onclick="adminAction('delete', '${u}')">Hapus</button>`;
+            if(status === 'pending') {
+                btns = `<button class="btn btn-small btn-success" onclick="adminAction('approve', '${u}')">Setujui</button> ` + btns;
+            }
+
+            uHtml += `<tr><td>${u}</td><td>${status}</td><td>${inv || 'Kosong'}</td><td>${btns}</td></tr>`;
+            if(status === 'approved') optHtml += `<option value="${u}">${u}</option>`;
+        }
+        document.getElementById('userTable').querySelector('tbody').innerHTML = uHtml;
+        document.getElementById('adminSelectReseller').innerHTML = optHtml;
+
+        let hHtml = '';
+        db.history.forEach(h => {
+            hHtml += `<tr><td>${h.id}</td><td>${h.reseller}</td><td>${h.email}</td><td>${h.team}</td><td>${h.code}</td><td>${h.date}</td></tr>`;
+        });
+        document.getElementById('historyTable').querySelector('tbody').innerHTML = hHtml;
+    }
+
+    async function adminAction(action, target) {
+        if(action === 'delete' && !confirm(`Yakin hapus reseller ${target}?`)) return;
+        await apiCall('/api/reseller/admin_action', {action, target});
+        loadAdminData();
+    }
+
+    async function addStock() {
+        const target = document.getElementById('adminSelectReseller').value;
+        const team = document.getElementById('adminTeam').value;
+        const codes = document.getElementById('adminCodes').value;
+        if(!target || !team || !codes) return alert("Lengkapi data stok!");
+        
+        await apiCall('/api/reseller/admin_action', {action: 'add_stock', target, team, codes});
+        alert("Stok Bulk berhasil ditambahkan!");
+        document.getElementById('adminCodes').value = '';
+        loadAdminData();
+    }
+
+    // --- Reseller Logic ---
+    async function loadResellerData() {
+        const res = await fetch('/api/reseller/data');
+        const db = await res.json();
+        const inv = db.inventory[activeUser] || {};
+        
+        let stockText = '';
+        let optHtml = '';
+        
+        for(let team in inv) {
+            let sisa = inv[team].length;
+            stockText += `• <b style="color:#fff">${team}</b> : ${sisa} Kode Tersisa<br>`;
+            if(sisa > 0) optHtml += `<option value="${team}">${team}</option>`;
+        }
+        
+        document.getElementById('resellerStock').innerHTML = stockText || 'Belum ada stok. Silakan hubungi Admin.';
+        document.getElementById('resellerTeamSelect').innerHTML = optHtml || '<option disabled selected>Stok Habis</option>';
+    }
+
+    async function sendInvite() {
+        const email = document.getElementById('resellerEmail').value;
+        const team = document.getElementById('resellerTeamSelect').value;
+        
+        if(!email || !team || team === 'Stok Habis') return alert("Email & Layanan harus diisi!");
+
+        // Set UI Struk ke Loading
+        document.getElementById('r-team').innerText = team;
+        document.getElementById('r-target').innerText = email;
+        const rStatus = document.getElementById('receiptStatus');
+        const btnComplain = document.getElementById('btnComplain');
+        const btnShare = document.getElementById('btnShare');
+        
+        rStatus.className = 'status-processing';
+        rStatus.innerText = 'Memproses...';
+        btnComplain.style.display = 'none';
+        btnShare.style.display = 'none';
+        document.querySelector('.btn-close').style.gridColumn = 'span 2';
+
+        document.getElementById('receiptModal').style.display = 'flex';
+        
+        const btn = document.getElementById('btnProcess');
+        btn.disabled = true;
+
+        // Panggil API Integrasi ke Core App
+        const res = await apiCall('/api/reseller/invite', {username: activeUser, email, team});
+        
+        btn.disabled = false;
+
+        if(res.success) {
+            rStatus.className = 'status-success';
+            rStatus.innerText = 'SUKSES DIKIRIM (OK)';
+            document.getElementById('r-id').innerText = res.receipt.id;
+            document.getElementById('r-date').innerText = res.receipt.date;
+            
+            btnShare.style.display = 'block';
+            document.querySelector('.btn-close').style.gridColumn = 'auto';
+            document.getElementById('resellerEmail').value = ''; // Reset form
+            
+            loadResellerData(); // Update sisa stok
+        } else {
+            rStatus.className = 'status-failed';
+            rStatus.innerText = 'GAGAL (ERROR)';
+            
+            const complainText = `*KENDALA UNDANGAN*%0A--------------------%0AReseller: ${activeUser}%0AEmail Target: ${email}%0AProduk: ${team}%0APesan Error: ${res.message}%0A--------------------`;
+            btnComplain.href = `https://t.me/premium2in?text=${complainText}`;
+            btnComplain.style.display = 'block';
+        }
+    }
+
+    function closeReceipt() {
+        document.getElementById('receiptModal').style.display = 'none';
+    }
+
+    // --- HTML2CANVAS ---
+    async function shareOrDownloadPNG() {
+        const captureArea = document.getElementById('receiptCapture');
+        const originalBorder = captureArea.style.border;
+        captureArea.style.border = 'none';
+        
+        try {
+            const canvas = await html2canvas(captureArea, { backgroundColor: '#111', scale: 2 });
+            captureArea.style.border = originalBorder; 
+            
+            canvas.toBlob(async (blob) => {
+                const file = new File([blob], `Struk_${activeUser}_${new Date().getTime()}.png`, { type: 'image/png' });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try { await navigator.share({ title: 'Struk Premium2in', files: [file] }); } catch (e) {}
+                } else {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none'; a.href = url; a.download = file.name;
+                    document.body.appendChild(a); a.click();
+                    window.URL.revokeObjectURL(url); a.remove();
+                }
+            }, 'image/png');
+        } catch (err) {
+            captureArea.style.border = originalBorder;
+            alert('Gagal buat struk: ' + err.message);
+        }
+    }
+</script>
+</body>
+</html>
