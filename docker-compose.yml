@@ -11,4 +11,3 @@ services:
       - PORT=8080
     volumes:
       - ./data:/app/data
-      - ./database.json:/app/database.json
