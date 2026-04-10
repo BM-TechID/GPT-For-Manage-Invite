@@ -8,7 +8,7 @@ services:
     build: .
     container_name: gpt-for-manage-invite-main
     ports:
-      - "1001:1001"
+      - "1001:8080"
     env_file:
       - .env
     volumes:
