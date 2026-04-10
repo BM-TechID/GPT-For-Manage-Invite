@@ -28,7 +28,7 @@ services:
     # Environment variable untuk menghubungkan Reseller ke App Utama
     # "web" adalah nama service aplikasi utama di atas, "8080" adalah port internalnya.
     environment:
-      - MAIN_APP_URL=http://web:1001/api/redeem 
+      - MAIN_APP_URL=http://web:8080/api/redeem 
     volumes:
       - ./reseller_panel/database.json:/app/database.json
     restart: unless-stopped
