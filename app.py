@@ -835,12 +835,8 @@ def main() -> None:
     app.run(host="0.0.0.0", port=PORT, debug=False)
 
 
-init_db()
-
-if __name__ == "__main__":
-    
-    # ================================================================
-# FITUR RESELLER DASHBOARD (JSON DATABASE)
+# ================================================================
+# MULAI: TAMBAHAN FITUR RESELLER DASHBOARD
 # ================================================================
 import json
 
@@ -865,7 +861,7 @@ def reseller_login():
     user = data.get('username')
     pw = data.get('password')
     
-    # 1. Login Khusus Admin (Baca dari .env)
+    # Login Khusus Admin (Baca dari .env)
     if user == 'admin':
         if not ADMIN_PASSWORD:
             return jsonify({"success": False, "msg": "Password Admin belum di-set di .env!"})
@@ -874,7 +870,7 @@ def reseller_login():
             return jsonify({"success": True, "role": "admin", "username": "admin"})
         return jsonify({"success": False, "msg": "Password Admin salah!"})
             
-    # 2. Login Reseller (Baca dari database.json)
+    # Login Reseller (Baca dari database.json)
     if user in db['users'] and db['users'][user]['password'] == pw:
         if db['users'][user]['status'] != 'approved':
             return jsonify({"success": False, "msg": "Akun belum di-approve Admin!"})
@@ -943,7 +939,7 @@ def reseller_process_invite():
     if team not in db['inventory'].get(user, {}) or len(db['inventory'][user][team]) == 0:
         return jsonify({"success": False, "msg": f"Stok {team} habis! Minta admin isi ulang."})
     
-    # Ambil 1 kode dari stok
+    # Ambil 1 kode dari stok reseller
     used_code = db['inventory'][user][team].pop(0)
     
     # Integrasi dengan fungsi redeem_invite bawaan app.py
@@ -960,11 +956,18 @@ def reseller_process_invite():
         save_reseller_db(db) 
         return jsonify({"success": True, "message": result["message"], "receipt": log})
     else:
-        # Kembalikan kode jika gagal di sistem utama
+        # Kembalikan kode jika gagal di sistem utama (biar tidak hangus)
         db['inventory'][user][team].insert(0, used_code)
         return jsonify({"success": False, "message": result["message"]})
 # ================================================================
-    
+# SELESAI: TAMBAHAN FITUR RESELLER DASHBOARD
+# ================================================================
+
+
+init_db()
+
+
+if __name__ == "__main__":
     main()
 
-
+    
