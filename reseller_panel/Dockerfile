@@ -1,6 +1,6 @@
-FROM python:3.10-alpine
+FROM node:18-alpine
 WORKDIR /app
+COPY package*.json ./
+RUN npm install
 COPY . .
-# Membuat file database default jika belum ada saat proses build
-RUN echo "{}" > database.json 
-CMD ["python", "server.py"]
+CMD ["node", "server.js"]

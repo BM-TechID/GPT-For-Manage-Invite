@@ -1,9 +1,7 @@
 version: '3.8'
 
 services:
-  # ----------------------------------------------------
-  # 1. APLIKASI UTAMA (Bawaan GitHub)
-  # ----------------------------------------------------
+  # 1. APLIKASI UTAMA (PYTHON)
   web:
     build: .
     container_name: gpt-for-manage-invite-main
@@ -15,21 +13,19 @@ services:
       - ./data:/app/data
     restart: unless-stopped
 
-  # ----------------------------------------------------
-  # 2. APLIKASI RESELLER (Container Baru)
-  # ----------------------------------------------------
-  reseller:
+  # 2. APLIKASI RESELLER (NODE.JS)
+  reseller_node:
     build: ./reseller_panel
     container_name: gpt-for-manage-invite-reseller
     ports:
       - "1002:1002"
     env_file:
       - .env
-    # Environment variable untuk menghubungkan Reseller ke App Utama
-    # "web" adalah nama service aplikasi utama di atas, "8080" adalah port internalnya.
     environment:
-      - MAIN_APP_URL=http://web:8080/api/redeem 
+      # Memanggil API aplikasi utama dari dalam jaringan docker
+      - MAIN_APP_URL=http://web:8080/api/redeem
     volumes:
+      # File database.json akan langsung masuk ke folder reseller_panel
       - ./reseller_panel/database.json:/app/database.json
     restart: unless-stopped
     depends_on:

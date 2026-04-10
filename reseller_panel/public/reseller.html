@@ -165,7 +165,6 @@
         const p = type === 'login' ? document.getElementById('pass').value : document.getElementById('regPass').value;
         if(!u || !p) return alert("Username dan Password wajib diisi!");
         
-        // Endpointnya hanya /api/login, tidak ada /api/reseller/login
         const endpoint = type === 'login' ? '/api/login' : '/api/register';
         const res = await apiCall(endpoint, {username: u, password: p});
         
@@ -205,9 +204,11 @@
         document.getElementById('adminSelectReseller').innerHTML = optHtml;
 
         let hHtml = '';
-        db.history.forEach(h => {
-            hHtml += `<tr><td>${h.id}</td><td>${h.reseller}</td><td>${h.email}</td><td>${h.team}</td><td>${h.code}</td><td>${h.date}</td></tr>`;
-        });
+        if(db.history) {
+            db.history.forEach(h => {
+                hHtml += `<tr><td>${h.id}</td><td>${h.reseller}</td><td>${h.email}</td><td>${h.team}</td><td>${h.code}</td><td>${h.date}</td></tr>`;
+            });
+        }
         document.getElementById('historyTable').querySelector('tbody').innerHTML = hHtml;
     }
 
